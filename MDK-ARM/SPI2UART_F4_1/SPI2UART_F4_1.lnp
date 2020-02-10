@@ -1,0 +1,27 @@
+--cpu=Cortex-M4.fp
+"spi2uart_f4_1\startup_stm32f411xe.o"
+"spi2uart_f4_1\main.o"
+"spi2uart_f4_1\stm32f4xx_it.o"
+"spi2uart_f4_1\stm32f4xx_hal_msp.o"
+"spi2uart_f4_1\system_stm32f4xx.o"
+"spi2uart_f4_1\stm32f4xx_hal_spi.o"
+"spi2uart_f4_1\stm32f4xx_hal_rcc.o"
+"spi2uart_f4_1\stm32f4xx_hal_rcc_ex.o"
+"spi2uart_f4_1\stm32f4xx_hal_flash.o"
+"spi2uart_f4_1\stm32f4xx_hal_flash_ex.o"
+"spi2uart_f4_1\stm32f4xx_hal_flash_ramfunc.o"
+"spi2uart_f4_1\stm32f4xx_hal_gpio.o"
+"spi2uart_f4_1\stm32f4xx_hal_dma_ex.o"
+"spi2uart_f4_1\stm32f4xx_hal_dma.o"
+"spi2uart_f4_1\stm32f4xx_hal_pwr.o"
+"spi2uart_f4_1\stm32f4xx_hal_pwr_ex.o"
+"spi2uart_f4_1\stm32f4xx_hal_cortex.o"
+"spi2uart_f4_1\stm32f4xx_hal.o"
+"spi2uart_f4_1\stm32f4xx_hal_exti.o"
+"spi2uart_f4_1\stm32f4xx_hal_tim.o"
+"spi2uart_f4_1\stm32f4xx_hal_tim_ex.o"
+"spi2uart_f4_1\stm32f4xx_hal_uart.o"
+--library_type=microlib --strict --scatter "SPI2UART_F4_1\SPI2UART_F4_1.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "SPI2UART_F4_1.map" -o SPI2UART_F4_1\SPI2UART_F4_1.axf
