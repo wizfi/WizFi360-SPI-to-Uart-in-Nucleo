@@ -1,0 +1,4 @@
+load STM32F411RETx 
+project name STCubeGenerated 
+project toolchain "MDK-ARM V5" 
+project path "D:\wiznet\Workspace\WizFi360_Work\ST_Project\SPI2UART_F4\RTE\Device\STM32F411RETx\" 
