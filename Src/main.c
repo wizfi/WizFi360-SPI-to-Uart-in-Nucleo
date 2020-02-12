@@ -237,6 +237,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	//while(SPI_INT_STTS == 1);
+  #if 0
   while(temp_cnt-->0)
   {
     if(SPI_INT_STTS==0)
@@ -248,7 +249,8 @@ int main(void)
 		}
   }
   temp_cnt = 100000;
-
+  #endif
+  HAL_Delay(1000);
 	printf("----------------------------------------------------\r\n");
 	printf("||         WizFi360 SPI to UART Test Program       ||\r\n");
 	printf("||                   Ver 0.1                       ||\r\n");
@@ -290,7 +292,7 @@ int main(void)
     if(RX_Flag_U6 == 1)
     {
       printf("%s",RX_BUFFER_U6);
-      if(strncmp(RX_BUFFER_U6, "check", 5) == 0)
+      if(strncmp((char *)RX_BUFFER_U6, "check", 5) == 0)
       {
         SPI_Read_STTS();
       }
@@ -704,10 +706,10 @@ int SPI_RECV(void)
   temp_CMD = SPI_REG_INT_STTS;
   SPI_RX_REG = SPI_Read_Register(temp_CMD);;
   SPI_CS_ON;
-  if(SPI_RX_REG == 0)
+  if(SPI_RX_REG != 1)
     return 0;
 #if 1
-  printf("SPI_REG_INT_STTS[%d]\r\n", SPI_RX_REG);
+  printf("SPI_REG_INT_STTS[%x]\r\n", SPI_RX_REG);
 #endif
   if((SPI_RX_REG != 0xffff) && (SPI_RX_REG & 0x01))
   {
@@ -878,7 +880,7 @@ uint16_t  SPI_Read_STTS(void)
 }
 int CMD_check_mode(void)
 {
-  if(strncmp(RX_BUFFER, "AT+CIPMODE=", 11) == 0)
+  if(strncmp((char *)RX_BUFFER, "AT+CIPMODE=", 11) == 0)
   {
     //CIP MODE
     if(RX_BUFFER[11]=='1')
@@ -897,13 +899,13 @@ int CMD_check_mode(void)
       printf("CMD Value Error!!\r\n");
     }
   }
-  else if(strncmp(RX_BUFFER, "AT+CIPSEND", 10) == 0)
+  else if(strncmp((char *)RX_BUFFER, "AT+CIPSEND", 10) == 0)
   {
     //send func
     if(RX_BUFFER[10]=='=')
     {
       // CIPSEND
-      sendsize = Int2StrNull(RX_BUFFER+11);
+      sendsize = Int2StrNull((char *)RX_BUFFER+11);
       if(sendsize > 0)
       {
         sendmode = 1;
@@ -915,10 +917,10 @@ int CMD_check_mode(void)
       }
       printf("S:%s I:%d \r\n", RX_BUFFER+11, sendsize);
     }
-    else if(strncmp(RX_BUFFER+10, "BUF=", 4) == 0)
+    else if(strncmp((char *)RX_BUFFER+10, "BUF=", 4) == 0)
     {
       // CIPSENDBUF
-      sendsize = Int2StrNull(RX_BUFFER+14);
+      sendsize = Int2StrNull((char *)RX_BUFFER+14);
       if(sendsize > 0)
       {
         sendmode = 1;
@@ -930,10 +932,10 @@ int CMD_check_mode(void)
       }
       printf("S:%s I:%d \r\n", RX_BUFFER+11, sendsize);
     }
-    else if(strncmp(RX_BUFFER+10, "EX=", 3) == 0)
+    else if(strncmp((char *)RX_BUFFER+10, "EX=", 3) == 0)
     {
       // CIP SENDEX
-      sendsize = Int2StrNull(RX_BUFFER+13);
+      sendsize = Int2StrNull((char *)RX_BUFFER+13);
       if(sendsize > 0)
       {
         sendmode = 1;
@@ -953,14 +955,14 @@ int recv_check_message(void)
   //SPI_RX_BUFF, SPI_RX_REG
   if(sendmode == 1) //send mode
   {
-    if(strncmp(SPI_RX_BUFF,"link is not valid", 17) == 0)
+    if(strncmp((char *)SPI_RX_BUFF,"link is not valid", 17) == 0)
     {
       printf("send error!! \r\n");
       sendmode = 0;
     }
   }else if(transmode == 0)
   {//WizFi360_Boot
-    if(strncmp(SPI_RX_BUFF,"\r\nready", 5) == 0)
+    if(strncmp((char *)SPI_RX_BUFF,"\r\nready", 5) == 0)
     {
       WizFi360_Boot = 1;
       TransBootCnt = 0;
@@ -969,7 +971,7 @@ int recv_check_message(void)
     if(WizFi360_Boot == 1)
     {
       TransBootCnt++;
-      if(strncmp(SPI_RX_BUFF,"CONNECT\r\n", 9) == 0)
+      if(strncmp((char *)SPI_RX_BUFF,"CONNECT\r\n", 9) == 0)
       {
         printf("WizFi360 Server Connect \r\n");
         if(TransBootCnt < 10)
@@ -981,6 +983,7 @@ int recv_check_message(void)
       }
     }
   }
+	return 0;
 }
 /* USER CODE END 4 */
 
