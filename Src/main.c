@@ -163,24 +163,30 @@ void uart2_recv_func(uint8_t Data)
   //HAL_UART_Receive_IT(&huart2, &rxData, 1);
 	 //HAL_UART_Transmit(&huart2, &rxData, 1, 1000);
 	RX_BUFFER[RX_Index++] = Data;
-	if(Data == '\n')
-	{
-    RX_BUFFER[RX_Index] = 0;
-		RX_Flag = 1;
-	}
-  else if (RX_Index==3&&(RX_BUFFER[0]=='+')&&(RX_BUFFER[1]=='+')&&(RX_BUFFER[2]=='+'))
+  if(sendmode == 1)
   {
-    transmode = 0;
-    RX_BUFFER[RX_Index] = 0;
-		RX_Flag = 1;
-  }  
-  else if((sendmode == 1)&&(RX_Index >= sendsize))
-  {
-    RX_BUFFER[RX_Index] = 0;
-		RX_Flag = 1;
-    sendmode = 0;
-    sendsize = 0;
+    if(RX_Index >= sendsize)
+    {
+      RX_BUFFER[RX_Index] = 0;
+      RX_Flag = 1;
+      //sendmode = 0;
+      sendsize = 0;
+    }
   }
+	else
+  { 
+    if(Data == '\n')
+    {
+      RX_BUFFER[RX_Index] = 0;
+      RX_Flag = 1;
+    }
+    else if (RX_Index==3&&(RX_BUFFER[0]=='+')&&(RX_BUFFER[1]=='+')&&(RX_BUFFER[2]=='+'))
+    {
+      transmode = 0;
+      RX_BUFFER[RX_Index] = 0;
+      RX_Flag = 1;
+    }
+  }  
 }
 void uart6_recv_func(uint8_t Data)
 {
@@ -259,19 +265,20 @@ int main(void)
   {
     if(RX_Flag == 1)
     {
-      printf("%s",RX_BUFFER);
+      printf("[%d]%s", RX_Index, RX_BUFFER);
       if(transmode == 1)
       {
         //
       }else if (sendmode == 1)
       {
-        //
+        sendmode = 0;        
       }
       else
       {
         /* code */
         CMD_check_mode();
       }
+      //CMD_check_mode();
       SPI_SEND(0, RX_BUFFER, RX_Index);
       RX_Flag = 0;
       RX_Index = 0;
@@ -545,7 +552,11 @@ void SPI_SEND(uint8_t type, uint8_t *data, uint16_t len)
   
   temp_CMD = SPI_REG_TX_BUFF_AVAIL;
   
+  #if 1   //teddy 200807
+  while((SPI_RX_REG != 0xffff) && (0 == SPI_RX_REG))
+  #else
   while((SPI_RX_REG != 0xffff) && (0 == (SPI_RX_REG & 0x02)))
+  #endif
   {
     retry++;
 		SPI_CS_OFF;
@@ -562,7 +573,7 @@ void SPI_SEND(uint8_t type, uint8_t *data, uint16_t len)
       break;
     }
     #if 1
-		printf("SPI SEND Retry[%d]\r\n", retry);
+		printf("Retry[%d] [%02x]\r\n", retry, SPI_RX_REG);
     #endif
     while(--temp_delay > 1);
     temp_delay = 10000;
@@ -902,6 +913,7 @@ int CMD_check_mode(void)
   else if(strncmp((char *)RX_BUFFER, "AT+CIPSEND", 10) == 0)
   {
     //send func
+    printf("<CMD CIPSEND> RX_BUFFER[10]= %c\r\n", RX_BUFFER[10]);
     if(RX_BUFFER[10]=='=')
     {
       // CIPSEND
@@ -974,12 +986,13 @@ int recv_check_message(void)
       if(strncmp((char *)SPI_RX_BUFF,"CONNECT\r\n", 9) == 0)
       {
         printf("WizFi360 Server Connect \r\n");
+        #if 0
         if(TransBootCnt < 10)
         {
           printf("WizFi360 Transmode start \r\n");
           transmode = 1;
         }
-
+        #endif
       }
     }
   }
